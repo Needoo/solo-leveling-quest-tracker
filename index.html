@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Quest Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap'); /* RPG-style font */
+        
+        body {
+            background-color: #0a0f1f;
+            color: #00c3ff;
+            font-family: 'Uncial Antiqua', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            animation: flicker 1.5s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        .container {
+            background: rgba(10, 15, 31, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px #00c3ff;
+            width: 320px;
+            border: 2px solid #00c3ff;
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow {
+            0% { box-shadow: 0px 0px 10px #00c3ff; }
+            100% { box-shadow: 0px 0px 25px #00c3ff; }
+        }
+        .exercise {
+            margin-bottom: 15px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .button {
+            background: #111b3c;
+            color: #00c3ff;
+            border: 2px solid #00c3ff;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            width: 60px;
+            transition: all 0.3s ease-in-out;
+            animation: flicker 1.5s infinite alternate;
+        }
+        .button:hover {
+            background: #00c3ff;
+            color: black;
+        }
+        .reset-button {
+            background: #ff003c;
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+            border: 2px solid white;
+            animation: glow-red 1.5s infinite alternate;
+        }
+        @keyframes glow-red {
+            0% { box-shadow: 0px 0px 10px #ff003c; }
+            100% { box-shadow: 0px 0px 20px #ff003c; }
+        }
+        .timer {
+            margin-top: 10px;
+            font-size: 16px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Quest</h1>
+        
+        <div class="exercise">
+            <p id="pushups">Push-Ups: 0/100</p>
+            <div class="button-container">
+                <button class="button" onclick="increment('pushups', 1)">+1</button>
+                <button class="button" onclick="increment('pushups', 10)">+10</button>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <p id="situps">Sit-Ups: 0/100</p>
+            <div class="button-container">
+                <button class="button" onclick="increment('situps', 1)">+1</button>
+                <button class="button" onclick="increment('situps', 10)">+10</button>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <p id="squats">Squats: 0/100</p>
+            <div class="button-container">
+                <button class="button" onclick="increment('squats', 1)">+1</button>
+                <button class="button" onclick="increment('squats', 10)">+10</button>
+            </div>
+        </div>
+        
+        <button class="button reset-button" onclick="resetProgress()">Reset</button>
+        <p class="timer" id="resetTimer">Next reset: --:--:--</p>
+    </div>
+    
+    <script>
+        function increment(exercise, amount) {
+            let elem = document.getElementById(exercise);
+            let current = parseInt(elem.textContent.split('/')[0].split(': ')[1]);
+            let updated = Math.min(100, current + amount);
+            elem.textContent = `${exercise.replace(/\b\w/g, l => l.toUpperCase())}: ${updated}/100`;
+            localStorage.setItem(exercise, updated);
+        }
+
+        function resetProgress() {
+            localStorage.clear();
+            ['pushups', 'situps', 'squats'].forEach(ex => document.getElementById(ex).textContent = `${ex.replace(/\b\w/g, l => l.toUpperCase())}: 0/100`);
+        }
+
+        function updateTimer() {
+            let now = new Date();
+            let midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+            let diff = midnight - now;
+            let hours = String(Math.floor(diff / 3600000)).padStart(2, '0');
+            let minutes = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+            let seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+            document.getElementById('resetTimer').textContent = `Next reset: ${hours}:${minutes}:${seconds}`;
+        }
+
+        setInterval(updateTimer, 1000);
+
+        ['pushups', 'situps', 'squats'].forEach(ex => {
+            let saved = localStorage.getItem(ex);
+            if (saved) document.getElementById(ex).textContent = `${ex.replace(/\b\w/g, l => l.toUpperCase())}: ${saved}/100`;
+        });
+    </script>
+</body>
+</html>
